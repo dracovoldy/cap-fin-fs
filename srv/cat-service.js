@@ -59,79 +59,157 @@ let getQueryFilters = (query) => {
     return filters;
 }
 
-const HIERARCHY_STRUCTURE = {
-    "Open Inventory Proprietary": [
-        { "GLAccount": "51101000" }
-    ],
-    "Open Inventory Purchased": [
-        { "GLAccount": "16100000" },
-        { "GLAccount": "16100000" },
-    ],
-    "Production Proprietary": [
-        { "GLAccount": "51101000" },
-        { "GLAccount": "51201000" },
-        { "GLAccount": "61001000" },
-    ],
-    "Purchases": [
-        { "GLAccount": "60201000" },
-        { "GLAccount": "60291000" },
-    ],
-    "Sales Purchased": [
-        { "GLAccount": "50101000" },
-        { "GLAccount": "50201040" },
-        { "GLAccount": "50301000" },
-    ],
-    "Sales Proprietary": [
-        { "GLAccount": "50101000" },
-        { "GLAccount": "50101300" },
-        { "GLAccount": "50201040" },
-        { "GLAccount": "50301000" },
-        { "GLAccount": "51901000" },
-        { "GLAccount": "51901100" },
-    ],
-    "Ending Inventory Proprietary": [
-        { "GLAccount": "16100100" },
-    ],
-    "Ending Inventory Purchased": [
-        { "GLAccount": "16100200" },
-        { "GLAccount": "16100000" },
-    ],
-    "Inventory Change": [
-        { "GLAccount": "62006300" },
-        { "GLAccount": "62090000" },
-    ],
-    "Stat Account Balancing": [
-        { "GLAccount": "51101000" },
-        { "GLAccount": "51201000" },
-        { "GLAccount": "51301000" },
-        { "GLAccount": "51401000" },
-    ],
-}
+const HIERARCHY_STRUCTURE = [
+    {
+        name: "Open Inventory Proprietary",
+        key: "OpenInventoryProprietary",
+        type: "static",
+        nodes: [
+            { "GLAccount": "51101000" }
+        ]
+    },
+    {
+        name: "Open Inventory Purchased",
+        key: "OpenInventoryPurchased",
+        type: "static",
+        nodes: [
+            { "GLAccount": "16100000" },
+            { "GLAccount": "16100000" },
+        ]
+    },
+    {
+        name: "Production Proprietary",
+        key: "ProductionProprietary",
+        type: "static",
+        nodes: [
+            { "GLAccount": "51101000" },
+            { "GLAccount": "51201000" },
+            { "GLAccount": "61001000" },
+        ]
+    },
+    {
+        name: "Purchases",
+        key: "Purchases",
+        type: "static",
+        nodes: [
+            { "GLAccount": "60201000" },
+            { "GLAccount": "60291000" },
+        ]
+    },
+    {
+        name: "Sales Purchased",
+        key: "SalesPurchased",
+        type: "static",
+        nodes: [
+            { "GLAccount": "50101000" },
+            { "GLAccount": "50201040" },
+            { "GLAccount": "50301000" },
+        ]
+    },
+    {
+        name: "Sales Proprietary",
+        key: "SalesProprietary",
+        type: "static",
+        nodes: [
+            { "GLAccount": "50101000" },
+            { "GLAccount": "50101300" },
+            { "GLAccount": "50201040" },
+            { "GLAccount": "50301000" },
+            { "GLAccount": "51901000" },
+            { "GLAccount": "51901100" },
+        ]
+    },
+    {
+        name: "Ending Inventory Proprietary",
+        key: "EndingInventoryProprietary",
+        type: "static",
+        nodes: [
+            { "GLAccount": "16100100" },
+        ]
+    },
+    {
+        name: "Ending Inventory Purchased",
+        key: "EndingInventoryPurchased",
+        type: "static",
+        nodes: [
+            { "GLAccount": "16100200" },
+            { "GLAccount": "16100000" },
+        ]
+    },
+    {
+        name: "Ending Inventory Calculated - Totals",
+        key: "EndingInventoryCalculatedTotals",
+        type: "formula",
+        nodes: [],
+        formula: "$projection.OpenInventoryProprietary + $projection.OpenInventoryPurchased + $projection.ProductionProprietary + $projection.Purchases - $projection.SalesPurchased - $projection.SalesProprietary"
+    },
+    {
+        name: "Inventory Change",
+        key: "InventoryChange",
+        type: "static",
+        nodes: [
+            { "GLAccount": "62006300" },
+            { "GLAccount": "62090000" },
+        ]
+    },
+    {
+        name: "Stat Account Balancing",
+        key: "StatAccountBalancing",
+        type: "static",
+        nodes: [
+            { "GLAccount": "51101000" },
+            { "GLAccount": "51201000" },
+            { "GLAccount": "51301000" },
+            { "GLAccount": "51401000" },
+        ]
+    }
+]
 
 let createStructure = (HIERARCHY_STRUCTURE) => {
     // iterate on level 0
-    let HIERARCY_KEYS = Object.keys(HIERARCHY_STRUCTURE);
     let STRUCT = [];
-    // console.log(HIERARCHY_STRUCTURE);
     let idx = 0;
-    HIERARCY_KEYS.forEach(element => {
-        STRUCT.push({
-            nodeID: idx,
-            parentNodeID: null,
-            hierarchyLevel: 0,
-            drillState: "expanded",
-            Structure: element,
-            "ProductionProprietaryAmount": 0,
-            "ProductionProprietaryQuantity": 0,
-            "PurchasedProductAmount": 0,
-            "PurchasedProductQuantity": 0,
-            "TotalAmount": 0,
-            "TotalQuantity": 0,
-            "TargetUnit": null,
-            "CompanyCodeCurrency": null,
+    HIERARCHY_STRUCTURE
+        .forEach(element => {
+
+            if (element.type === "static") {
+                STRUCT.push({
+                    nodeID: idx,
+                    parentNodeID: null,
+                    hierarchyLevel: 0,
+                    drillState: "expanded",
+                    Structure: element.name,
+                    Type: element.type,
+                    "ProductionProprietaryAmount": null,
+                    "ProductionProprietaryQuantity": null,
+                    "PurchasedProductAmount": null,
+                    "PurchasedProductQuantity": null,
+                    "TotalAmount": null,
+                    "TotalQuantity": null,
+                    "TargetUnit": null,
+                    "CompanyCodeCurrency": null,
+                });
+            } else if (element.type === "formula") {
+                STRUCT.push({
+                    nodeID: idx,
+                    parentNodeID: null,
+                    hierarchyLevel: 0,
+                    drillState: "leaf",
+                    Structure: element.name,
+                    Type: element.type,
+                    Formula: parseFormula(element.formula, HIERARCHY_STRUCTURE),
+                    "ProductionProprietaryAmount": null,
+                    "ProductionProprietaryQuantity": null,
+                    "PurchasedProductAmount": null,
+                    "PurchasedProductQuantity": null,
+                    "TotalAmount": null,
+                    "TotalQuantity": null,
+                    "TargetUnit": null,
+                    "CompanyCodeCurrency": null,
+                });
+            }
+            idx++;
         });
-        idx++;
-    });
     // console.log(STRUCT);
 
     let FINAL_STRUCT = [...STRUCT];
@@ -139,43 +217,55 @@ let createStructure = (HIERARCHY_STRUCTURE) => {
     // iterate on level 1
     STRUCT.forEach((element, index) => {
 
-        HIERARCHY_STRUCTURE[HIERARCY_KEYS[index]].forEach((st_ele, st_idx) => {
-            FINAL_STRUCT.push({
-                nodeID: idx,
-                parentNodeID: index,
-                hierarchyLevel: 1,
-                drillState: "leaf",
-                Structure: st_ele.GLAccount,
-                "ProductionProprietaryAmount": 0,
-                "ProductionProprietaryQuantity": 0,
-                "PurchasedProductAmount": 0,
-                "PurchasedProductQuantity": 0,
-                "TotalAmount": 0,
-                "TotalQuantity": 0,
-                "TargetUnit": null,
-                "CompanyCodeCurrency": null,
+        HIERARCHY_STRUCTURE
+            .filter(ele => ele.name === element.Structure)[0].nodes
+            .forEach((st_ele, st_idx) => {
+                FINAL_STRUCT.push({
+                    nodeID: idx,
+                    parentNodeID: index,
+                    hierarchyLevel: 1,
+                    drillState: "leaf",
+                    Structure: st_ele.GLAccount,
+                    "ProductionProprietaryAmount": null,
+                    "ProductionProprietaryQuantity": null,
+                    "PurchasedProductAmount": null,
+                    "PurchasedProductQuantity": null,
+                    "TotalAmount": null,
+                    "TotalQuantity": null,
+                    "TargetUnit": null,
+                    "CompanyCodeCurrency": null,
 
+                });
+                idx++
             });
-            idx++
-        });
     });
     // console.log(FINAL_STRUCT);
     return { FINAL_STRUCT };
 
 }
 
-// const HIERARCHY_STRUCTURE = [
-//     "Open Inventory Proprietary",
-//     "Open Inventory Purchased",
-//     "Production Proprietary",
-//     "Purchases",
-//     "Sales Purchased",
-//     "Sales Proprietary",
-//     "Ending Inventory Proprietary",
-//     "Ending Inventory Purchased",
-//     "Inventory Change",
-//     "Stat Account Balancing",
-// ]
+let parseFormula = (formula, HIERARCHY_STRUCTURE) => {
+    let regex = /\$projection\./i;
+    formula = formula.split(" ");
+
+    formula = formula.map(ele => {
+        if (regex.ele(input)) {
+            let key = ele.split("$projection.")[0];
+            let index = null;
+            HIERARCHY_STRUCTURE.filter((node, idx) => {
+                if (key === node.key) {
+                    index = idx;
+                    return true;
+                }
+                return false;
+            });
+            return index;
+        }
+        return ele;
+    });
+
+    return formula;
+}
 
 module.exports = cds.service.impl(async function () {
     const { TestEntity } = this.entities;
@@ -187,9 +277,6 @@ module.exports = cds.service.impl(async function () {
 
         const { P_Period, P_Year } = getQueryArgs(req.query);
         const { CompanyCode, hierarchyLevel, parentNodeID } = getQueryFilters(req.query);
-
-        // let internal_results = [];
-        // let HIERARCY_KEYS = Object.keys(HIERARCHY_STRUCTURE);
 
         let query = `YCDS_GLACQ01(P_Period='${P_Period}',P_Year='${P_Year}')/Results`
 
@@ -263,6 +350,33 @@ module.exports = cds.service.impl(async function () {
         let merged_res = [...res_level_0, ...res_level_1];
 
         if (hierarchyLevel === 0) {
+
+            res_level_0 = res_level_0
+                .map(ele => {
+                    if (ele.Type === "formula") {
+
+                        let copy_ele = { ...ele };
+                        ele.formula.map(formula => {
+                            // "ProductionProprietaryAmount": null,
+                            // "ProductionProprietaryQuantity": null,
+                            // "PurchasedProductAmount": null,
+                            // "PurchasedProductQuantity": null,
+                            // "TotalAmount": null,
+                            // "TotalQuantity": null,
+                            // "TargetUnit": null,
+                            // "CompanyCodeCurrency": null,
+                            if (typeof (formula) === 'number') {
+                                
+                            }
+
+                        });
+
+
+                    }
+                });
+
+
+
             res_level_0['$count'] = res_level_0.length
             return res_level_0;
         }
@@ -274,7 +388,7 @@ module.exports = cds.service.impl(async function () {
             let final_res_level_1 = [];
 
             for (let idx = 0; idx < merged_res.length; idx++) {
-                if(merged_res[idx].parentNodeID === parentNodeID) {
+                if (merged_res[idx].parentNodeID === parentNodeID) {
                     final_res_level_1.push(merged_res[idx]);
                 }
             }
