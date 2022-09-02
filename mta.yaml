@@ -1,0 +1,136 @@
+_schema-version: "3.1"
+ID: BTP-GLInvBalTax
+description: A simple CAP project.
+version: 1.0.0
+modules:
+# CAP SERVICE
+- name: BTP-GLInvBalTax-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: BTP-GLInvBalTax-dest-srv
+  - name: BTP-GLInvBalTax-uaa
+  - name: BTP-GLInvBalTax-conn
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm-ci
+# APP CONTENT
+- name: BTP-GLInvBalTax-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: BTP-GLInvBalTax-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - comchevrondcoreanlglaccbalances.zip
+      name: comchevrondcoreanlglaccbalances
+      target-path: resources/
+# HTML5 - APP1
+- name: comchevrondcoreanlglaccbalances
+  type: html5
+  path: app/glaccbalances
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+#  DESTINATION CONTENT
+- name: BTP-GLInvBalTax-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: BTP-GLInvBalTax-dest-srv
+    parameters:
+      content-target: true
+  - name: BTP-GLInvBalTax-repo-host
+    parameters:
+      service-key:
+        name: BTP-GLInvBalTax-repo-host-key
+  - name: BTP-GLInvBalTax-uaa
+    parameters:
+      service-key:
+        name: BTP-GLInvBalTax-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: BTP-GLInvBalTax-repo-host
+          ServiceInstanceName: BTP-GLInvBalTax-html5-srv
+          ServiceKeyName: BTP-GLInvBalTax-repo-host-key
+          sap.cloud.service: com.chevron.dcore.diaa.glaccbalances
+        - Authentication: OAuth2UserTokenExchange
+          Name: BTP-GLInvBalTax-uaa
+          ServiceInstanceName: BTP-GLInvBalTax-xsuaa-service
+          ServiceKeyName: BTP-GLInvBalTax-uaa-key
+          sap.cloud.service: com.chevron.dcore.diaa.glaccbalances
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+
+# RESOURCES
+resources:
+- name: BTP-GLInvBalTax-dest-srv
+  type: org.cloudfoundry.managed-service
+  requires:
+  - name: srv-api
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        subaccount:
+          existing_destinations_policy: update
+          destinations:
+          # - Authentication: NoAuthentication
+          #   Name: ui5
+          #   ProxyType: Internet
+          #   Type: HTTP
+          #   URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: BTP-GLInvBalTax-srv
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+    service: destination
+    service-name: BTP-GLInvBalTax-dest-srv
+    service-plan: lite
+- name: BTP-GLInvBalTax-conn
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
+- name: BTP-GLInvBalTax-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      xsappname: BTP-GLInvBalTax-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: BTP-GLInvBalTax-xsuaa-service
+    service-plan: application
+- name: BTP-GLInvBalTax-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: BTP-GLInvBalTax-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  # enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm install --production
+    - npx -p @sap/cds-dk cds build --production
