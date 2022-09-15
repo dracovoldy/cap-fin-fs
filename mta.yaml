@@ -3,7 +3,6 @@ ID: BTP-GLInvBalTax
 description: A simple CAP project.
 version: 1.0.0
 modules:
-# CAP SERVICE
 - name: BTP-GLInvBalTax-srv
   type: nodejs
   path: gen/srv
@@ -19,7 +18,6 @@ modules:
     buildpack: nodejs_buildpack
   build-parameters:
     builder: npm-ci
-# APP CONTENT
 - name: BTP-GLInvBalTax-app-content
   type: com.sap.application.content
   path: .
@@ -34,7 +32,10 @@ modules:
       - comchevrondcoreanlglaccbalances.zip
       name: comchevrondcoreanlglaccbalances
       target-path: resources/
-# HTML5 - APP1
+    - artifacts:
+      - glaccountbalancesfs.zip
+      name: glaccountbalancesfs
+      target-path: resources/
 - name: comchevrondcoreanlglaccbalances
   type: html5
   path: app/glaccbalances
@@ -45,7 +46,6 @@ modules:
     - npm install
     - npm run build:cf
     supported-platforms: []
-#  DESTINATION CONTENT
 - name: BTP-GLInvBalTax-dest-content
   type: com.sap.application.content
   requires:
@@ -76,35 +76,43 @@ modules:
         existing_destinations_policy: ignore
   build-parameters:
     no-source: true
-
-# RESOURCES
+- name: glaccountbalancesfs
+  type: html5
+  path: app/glaccountbalances-fs
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
 resources:
 - name: BTP-GLInvBalTax-dest-srv
   type: org.cloudfoundry.managed-service
-  requires:
-  - name: srv-api
   parameters:
     config:
       HTML5Runtime_enabled: true
       init_data:
-        subaccount:
-          existing_destinations_policy: update
+        instance:
           destinations:
-          # - Authentication: NoAuthentication
-          #   Name: ui5
-          #   ProxyType: Internet
-          #   Type: HTTP
-          #   URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
           - Authentication: NoAuthentication
             HTML5.DynamicDestination: true
             HTML5.ForwardAuthToken: true
-            Name: BTP-GLInvBalTax-srv
+            Name: BTP-GLInvBalTax-srv-api
             ProxyType: Internet
             Type: HTTP
             URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
     service: destination
     service-name: BTP-GLInvBalTax-dest-srv
     service-plan: lite
+  requires:
+  - name: srv-api
 - name: BTP-GLInvBalTax-conn
   type: org.cloudfoundry.managed-service
   parameters:
@@ -127,7 +135,6 @@ resources:
     service-plan: app-host
 parameters:
   deploy_mode: html5-repo
-  # enable-parallel-deployments: true
 build-parameters:
   before-all:
   - builder: custom

@@ -58,7 +58,12 @@ annotate CatalogService.TestEntity {
 
 annotate CatalogService.TestEntity with @(UI : {
     Identification  : [{Value : Structure}],
-    SelectionFields : [CompanyCode],
+    SelectionFields : [
+        CompanyCode,
+        FiscalYear,
+        FiscalPeriod
+    ],
+    // Table Line Items & default order
     LineItem        : [
         {
             $Type : 'UI.DataField',
@@ -95,11 +100,12 @@ annotate CatalogService.TestEntity with @(UI : {
             Value : TotalQuantity,
             Label : 'Total Quantity'
         },
-    // {
-    //     $Type : 'UI.DataField',
-    //     Value : CompanyCodeCurrency,
-    //     Label : 'Compancy Code Currency',
-    // }
+        // {
+        //     $Type : 'UI.DataField',
+        //     Value : nodeID,
+        //     Label : 'Node ID',
+        //     ![@UI.Hidden]
+        // }
     ],
     HeaderInfo      : {
         $Type          : 'UI.HeaderInfoType',
@@ -109,3 +115,13 @@ annotate CatalogService.TestEntity with @(UI : {
         Description    : {Value : Structure}
     }
 });
+
+// Set Required filters in Filterbar
+annotate CatalogService.TestEntity with @(Capabilities : {FilterRestrictions : {
+    $Type              : 'Capabilities.FilterRestrictionsType',
+    RequiredProperties : [
+        CompanyCode,
+        FiscalYear,
+        FiscalPeriod,
+    ],
+}});

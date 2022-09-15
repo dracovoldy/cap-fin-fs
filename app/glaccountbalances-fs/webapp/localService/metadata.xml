@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="CatalogService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="TestEntity" EntityType="CatalogService.TestEntity"/>
+                <EntitySet Name="TestNode" EntityType="CatalogService.TestNode"/>
+                <EntitySet Name="I_CompanyCodeVH" EntityType="CatalogService.I_CompanyCodeVH"/>
+                <EntitySet Name="I_FiscalYear" EntityType="CatalogService.I_FiscalYear"/>
+                <EntitySet Name="I_FiscalPeriod" EntityType="CatalogService.I_FiscalPeriod">
+                    <NavigationPropertyBinding Path="to_FiscalYear" Target="I_FiscalYear"/>
+                </EntitySet>
+            </EntityContainer>
+            <EntityType Name="TestEntity">
+                <Key>
+                    <PropertyRef Name="nodeID"/>
+                </Key>
+                <Property Name="nodeID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="hierarchyLevel" Type="Edm.Int32"/>
+                <Property Name="parentNodeID" Type="Edm.Int32"/>
+                <Property Name="drillState" Type="Edm.String"/>
+                <Property Name="Structure" Type="Edm.String"/>
+                <Property Name="FiscalPeriod" Type="Edm.String" MaxLength="3"/>
+                <Property Name="FiscalYear" Type="Edm.String" MaxLength="4"/>
+                <Property Name="CompanyCode" Type="Edm.String" MaxLength="4"/>
+                <Property Name="PurchasedProductAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="PurchasedProductQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="ProductionProprietaryAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="ProductionProprietaryQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="TotalAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="TotalQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="CompanyCodeCurrency" Type="Edm.String" MaxLength="5"/>
+                <Property Name="TargetUnit" Type="Edm.String" MaxLength="3"/>
+                <Property Name="ProductGroup" Type="Edm.String" MaxLength="9"/>
+                <Property Name="ProductGroupName" Type="Edm.String" MaxLength="20"/>
+            </EntityType>
+            <EntityType Name="TestNode">
+                <Key>
+                    <PropertyRef Name="nodeID"/>
+                </Key>
+                <Property Name="nodeID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="hierarchyLevel" Type="Edm.Int32"/>
+                <Property Name="parentNodeID" Type="Edm.Int32"/>
+                <Property Name="drillState" Type="Edm.String"/>
+                <Property Name="Structure" Type="Edm.String"/>
+                <Property Name="PurchasedProductAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="PurchasedProductQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="ProductionProprietaryAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="ProductionProprietaryQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="TotalAmount" Type="Edm.Decimal" Scale="3" Precision="24"/>
+                <Property Name="TotalQuantity" Type="Edm.Decimal" Scale="9" Precision="31"/>
+                <Property Name="CompanyCodeCurrency" Type="Edm.String" MaxLength="5"/>
+                <Property Name="TargetUnit" Type="Edm.String" MaxLength="3"/>
+            </EntityType>
+            <EntityType Name="I_CompanyCodeVH">
+                <Key>
+                    <PropertyRef Name="CompanyCode"/>
+                </Key>
+                <Property Name="CompanyCode" Type="Edm.String" MaxLength="4" Nullable="false"/>
+                <Property Name="CompanyCodeName" Type="Edm.String" MaxLength="25"/>
+                <Property Name="ControllingArea" Type="Edm.String" MaxLength="4"/>
+                <Property Name="CityName" Type="Edm.String" MaxLength="25"/>
+                <Property Name="Country" Type="Edm.String" MaxLength="3"/>
+                <Property Name="Currency" Type="Edm.String" MaxLength="5"/>
+                <Property Name="Language" Type="Edm.String" MaxLength="2"/>
+                <Property Name="ChartOfAccounts" Type="Edm.String" MaxLength="4"/>
+                <Property Name="FiscalYearVariant" Type="Edm.String" MaxLength="2"/>
+                <Property Name="Company" Type="Edm.String" MaxLength="6"/>
+                <Property Name="CreditControlArea" Type="Edm.String" MaxLength="4"/>
+                <Property Name="CountryChartOfAccounts" Type="Edm.String" MaxLength="4"/>
+                <Property Name="FinancialManagementArea" Type="Edm.String" MaxLength="4"/>
+            </EntityType>
+            <EntityType Name="I_FiscalYear">
+                <Key>
+                    <PropertyRef Name="CompanyCode"/>
+                    <PropertyRef Name="FiscalYear"/>
+                </Key>
+                <Property Name="CompanyCode" Type="Edm.String" MaxLength="4" Nullable="false"/>
+                <Property Name="FiscalYear" Type="Edm.String" MaxLength="4" Nullable="false"/>
+                <Property Name="FiscalYearStartDate" Type="Edm.Date"/>
+                <Property Name="FiscalYearEndDate" Type="Edm.Date"/>
+            </EntityType>
+            <EntityType Name="I_FiscalPeriod">
+                <Key>
+                    <PropertyRef Name="CompanyCode"/>
+                    <PropertyRef Name="FiscalYear"/>
+                    <PropertyRef Name="FiscalPeriod"/>
+                </Key>
+                <Property Name="CompanyCode" Type="Edm.String" MaxLength="4" Nullable="false"/>
+                <Property Name="FiscalYear" Type="Edm.String" MaxLength="4" Nullable="false"/>
+                <Property Name="FiscalPeriod" Type="Edm.String" MaxLength="3" Nullable="false"/>
+                <Property Name="FiscalPeriod_Text" Type="Edm.String" MaxLength="20"/>
+                <Property Name="FiscalYearVariant" Type="Edm.String" MaxLength="2"/>
+                <Property Name="FiscalPeriodStartDate" Type="Edm.Date"/>
+                <Property Name="FiscalPeriodEndDate" Type="Edm.Date"/>
+                <NavigationProperty Name="to_FiscalYear" Type="CatalogService.I_FiscalYear">
+                    <ReferentialConstraint Property="CompanyCode" ReferencedProperty="CompanyCode"/>
+                    <ReferentialConstraint Property="FiscalYear" ReferencedProperty="FiscalYear"/>
+                </NavigationProperty>
+            </EntityType>
+            <Annotations Target="CatalogService.TestEntity">
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="Structure"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>CompanyCode</PropertyPath>
+                        <PropertyPath>FiscalYear</PropertyPath>
+                        <PropertyPath>FiscalPeriod</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.LineItem">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="Structure"/>
+                            <PropertyValue Property="Label" String="Structure"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="PurchasedProductAmount"/>
+                            <PropertyValue Property="Label" String="Purchased Product Amount"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="PurchasedProductQuantity"/>
+                            <PropertyValue Property="Label" String="Purchased Product Quantity"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="ProductionProprietaryAmount"/>
+                            <PropertyValue Property="Label" String="Production Proprietary Amount"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="ProductionProprietaryQuantity"/>
+                            <PropertyValue Property="Label" String="Production Proprietary Quantity"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="TotalAmount"/>
+                            <PropertyValue Property="Label" String="Total Amount"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="TotalQuantity"/>
+                            <PropertyValue Property="Label" String="Total Quantity"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.HeaderInfo">
+                    <Record Type="UI.HeaderInfoType">
+                        <PropertyValue Property="TypeName" String="Node"/>
+                        <PropertyValue Property="TypeNamePlural" String="Nodes"/>
+                        <PropertyValue Property="Title">
+                            <Record Type="UI.DataField">
+                                <PropertyValue Property="Value" Path="Structure"/>
+                            </Record>
+                        </PropertyValue>
+                        <PropertyValue Property="Description">
+                            <Record Type="UI.DataField">
+                                <PropertyValue Property="Value" Path="Structure"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.EntityContainer/TestEntity">
+                <Annotation Term="Capabilities.FilterRestrictions">
+                    <Record Type="Capabilities.FilterRestrictionsType">
+                        <PropertyValue Property="RequiredProperties">
+                            <Collection>
+                                <PropertyPath>CompanyCode</PropertyPath>
+                                <PropertyPath>FiscalYear</PropertyPath>
+                                <PropertyPath>FiscalPeriod</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.DeleteRestrictions">
+                    <Record Type="Capabilities.DeleteRestrictionsType">
+                        <PropertyValue Property="Deletable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.InsertRestrictions">
+                    <Record Type="Capabilities.InsertRestrictionsType">
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.UpdateRestrictions">
+                    <Record Type="Capabilities.UpdateRestrictionsType">
+                        <PropertyValue Property="Updatable" Bool="false"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.TestEntity/FiscalPeriod">
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="CollectionPath" String="I_FiscalPeriod"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="FiscalYear"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="FiscalYear"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="CompanyCode"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="CompanyCode"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="FiscalPeriod"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="FiscalPeriod"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="FiscalPeriod_Text"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.TestEntity/FiscalYear">
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="CollectionPath" String="I_FiscalYear"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="FiscalYear"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="FiscalYear"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="CompanyCode"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="CompanyCode"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.TestEntity/CompanyCode">
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="CollectionPath" String="I_CompanyCodeVH"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="ValueListProperty" String="CompanyCode"/>
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="CompanyCode"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="CompanyCodeName"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="ControllingArea"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.TestNode">
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="Structure"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>Structure</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.LineItem">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="Structure"/>
+                            <PropertyValue Property="Label" String="Structure"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="PurchasedProductAmount"/>
+                            <PropertyValue Property="Label" String="Purchased Product Amount"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="PurchasedProductQuantity"/>
+                            <PropertyValue Property="Label" String="Purchased Product Quantity"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.HeaderInfo">
+                    <Record Type="UI.HeaderInfoType">
+                        <PropertyValue Property="TypeName" String="Node"/>
+                        <PropertyValue Property="TypeNamePlural" String="Nodes"/>
+                        <PropertyValue Property="Title">
+                            <Record Type="UI.DataField">
+                                <PropertyValue Property="Value" Path="Structure"/>
+                            </Record>
+                        </PropertyValue>
+                        <PropertyValue Property="Description">
+                            <Record Type="UI.DataField">
+                                <PropertyValue Property="Value" Path="Structure"/>
+                            </Record>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="CatalogService.EntityContainer/TestNode">
+                <Annotation Term="Capabilities.DeleteRestrictions">
+                    <Record Type="Capabilities.DeleteRestrictionsType">
+                        <PropertyValue Property="Deletable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.InsertRestrictions">
+                    <Record Type="Capabilities.InsertRestrictionsType">
+                        <PropertyValue Property="Insertable" Bool="false"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.UpdateRestrictions">
+                    <Record Type="Capabilities.UpdateRestrictionsType">
+                        <PropertyValue Property="Updatable" Bool="false"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
